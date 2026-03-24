@@ -6,7 +6,7 @@ Usage:
     cd comparison/
     python3 plot.py
 
-Reads results_c.csv, results_rust.csv, and stability.csv from cwd.
+Reads results_rls_c.csv, results_rls_rust.csv, and results_rls_stability.csv from cwd.
 Outputs PNGs to plots/ subdirectory.
 """
 
@@ -39,7 +39,7 @@ CONFIG_LABELS = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  Throughput plots (from results_c.csv + results_rust.csv)
+#  Throughput plots (from results_rls_c.csv + results_rls_rust.csv)
 # ═══════════════════════════════════════════════════════════════════════════
 
 def plot_throughput(df_c, df_r, outdir):
@@ -71,7 +71,7 @@ def plot_throughput(df_c, df_r, outdir):
     ax.legend(loc="upper left")
     ax.set_ylim(0, max(iqr_t) * 1.2)
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "throughput.png"))
+    fig.savefig(os.path.join(outdir, "rls_throughput.png"))
     plt.close(fig)
     print("  throughput.png")
 
@@ -105,7 +105,7 @@ def plot_rust_vs_c(df_c, df_r, outdir):
     ax.legend()
     ax.set_ylim(0, max(c_t) * 1.3)
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "rust_vs_c.png"))
+    fig.savefig(os.path.join(outdir, "rls_rust_vs_c.png"))
     plt.close(fig)
     print("  rust_vs_c.png")
 
@@ -133,13 +133,13 @@ def plot_accuracy(df_r, outdir):
     ax.set_yscale("log")
     ax.legend()
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "accuracy.png"))
+    fig.savefig(os.path.join(outdir, "rls_accuracy.png"))
     plt.close(fig)
     print("  accuracy.png")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  Stability plots (from stability.csv)
+#  Stability plots (from results_rls_stability.csv)
 # ═══════════════════════════════════════════════════════════════════════════
 
 SCENARIO_LABELS = {
@@ -167,7 +167,7 @@ def plot_stability_drift(df_stab, outdir):
     axes[0].set_ylabel("Max |f32 − f64 reference|")
     fig.suptitle("Numerical Drift from f64 Ground Truth", fontsize=13, fontweight="bold", y=1.02)
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "stability_drift.png"), bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "rls_stability_drift.png"), bbox_inches="tight")
     plt.close(fig)
     print("  stability_drift.png")
 
@@ -193,7 +193,7 @@ def plot_stability_vs_true(df_stab, outdir):
     axes[0].set_ylabel("Max |estimate − true|")
     fig.suptitle("Parameter Estimation Error vs True Values", fontsize=13, fontweight="bold", y=1.02)
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "stability_vs_true.png"), bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "rls_stability_vs_true.png"), bbox_inches="tight")
     plt.close(fig)
     print("  stability_vs_true.png")
 
@@ -233,16 +233,16 @@ def main():
     os.makedirs(outdir, exist_ok=True)
 
     # Load throughput data
-    df_c = pd.read_csv("results_c.csv")
-    df_r = pd.read_csv("results_rust.csv")
+    df_c = pd.read_csv("results_rls_c.csv")
+    df_r = pd.read_csv("results_rls_rust.csv")
     df_c.columns = df_c.columns.str.strip()
     df_r.columns = df_r.columns.str.strip()
     print(f"Loaded throughput data: C={len(df_c)} rows, Rust={len(df_r)} rows")
 
     # Load stability data (optional)
     df_stab = None
-    if os.path.exists("stability.csv"):
-        df_stab = pd.read_csv("stability.csv")
+    if os.path.exists("results_rls_stability.csv"):
+        df_stab = pd.read_csv("results_rls_stability.csv")
         df_stab.columns = df_stab.columns.str.strip()
         print(f"Loaded stability data: {len(df_stab)} rows")
 

@@ -8,8 +8,7 @@
 //! | [`inverse_qr`] | Info-matrix factor `L` | Inherently well-conditioned; no guards needed |
 //!
 //! Both support exponential forgetting (`λ`) and parallel multi-output mode
-//! with shared regressors—the configuration used for flight controller system
-//! identification (learning G1/G2 effectiveness matrices at 8 kHz).
+//! with shared regressors.
 //!
 //! # Quick start
 //!

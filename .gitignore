@@ -5,6 +5,7 @@ Cargo.lock
 comparison/*.csv
 comparison/plots/
 comparison/bench_rls_c
+comparison/bench_wls_c
 
 # Editor
 .vscode/

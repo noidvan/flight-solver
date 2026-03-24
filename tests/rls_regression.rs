@@ -14,9 +14,7 @@ use nalgebra::SVector;
 /// f32 vs f64 tolerance. MATLAB uses f64; our solvers use f32.
 const TOL: f32 = 5e-2;
 
-fn run_cases<const N: usize, const P: usize>(
-    cases: &[golden_cases_mod::Case<N, P>],
-) {
+fn run_cases<const N: usize, const P: usize>(cases: &[golden_cases_mod::Case<N, P>]) {
     let guards = CovarianceGuards {
         cov_max: f32::MAX,
         cov_min: f32::MAX,
@@ -41,7 +39,12 @@ fn run_cases<const N: usize, const P: usize>(
                 assert!(
                     diff / scale < TOL,
                     "[{}] X[{},{}]: actual={:.6}, expected={:.6}, rel={:.2e}",
-                    case.name, n_idx, p_idx, actual, expected, diff / scale,
+                    case.name,
+                    n_idx,
+                    p_idx,
+                    actual,
+                    expected,
+                    diff / scale,
                 );
             }
         }

@@ -9,7 +9,7 @@ repository = "https://github.com/noidvan/flight-solver"
 readme = "README.md"
 keywords = ["robotics", "least-squares", "no-std", "solver"]
 categories = ["no-std", "science::robotics", "aerospace"]
-exclude = ["tests/", "benches/", "comparison/", ".github/"]
+exclude = ["tests/", "benches/", "comparison/", ".github/", ".claude/"]
 
 [dependencies]
 nalgebra = { version = "0.34", default-features = false, features = ["libm"] }
@@ -22,9 +22,22 @@ criterion = { version = "0.5", features = ["html_reports"] }
 name = "rls"
 harness = false
 
+[[bench]]
+name = "wls"
+harness = false
+
 [[bin]]
 name = "bench_rls"
 path = "comparison/bench_rls.rs"
+
+[[bin]]
+name = "bench_wls"
+path = "comparison/bench_wls.rs"
+
+[package.metadata.release]
+publish = false
+push = true
+tag = true
 
 [profile.release]
 lto = true
