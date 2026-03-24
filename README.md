@@ -1,4 +1,4 @@
-# flight-solver
+# Flight Solver
 
 [![CI](https://github.com/noidvan/flight-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/noidvan/flight-solver/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/flight-solver.svg)](https://crates.io/crates/flight-solver)
@@ -54,4 +54,4 @@ let stats = solve::<4, 6, 10>(&a, &b, &VecN::zeros(), &VecN::from_element(1.0), 
 
 - Haykin, S. *Adaptive Filter Theory*, 5th ed., Pearson, 2014. Ch. 15 - Square-root adaptive filtering (inverse QR-RLS derivation).
 - [ActiveSetCtlAlloc](https://github.com/tudelft/ActiveSetCtlAlloc) - C reference implementation of the active-set WLS solver.
-- [indiflight](https://github.com/tudelft/indiflight) - C reference implementation of the standard RLS with numerical guards.
+- [Indiflight](https://github.com/tudelft/indiflight) - C reference implementation of the standard RLS with numerical guards.

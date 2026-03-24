@@ -1,3 +1,4 @@
+#![allow(clippy::excessive_precision)]
 //! Regression tests against MATLAB f64 golden reference data.
 //!
 //! Test data is embedded as static Rust arrays in `rls_regression/golden_cases.rs`,
@@ -24,7 +25,7 @@ fn run_cases<const N: usize, const P: usize>(cases: &[golden_cases_mod::Case<N, 
     for case in cases {
         let mut rls = RlsParallel::<N, P>::new(case.gamma, case.lambda, guards);
 
-        for &(ref a_arr, ref y_arr) in case.steps {
+        for (a_arr, y_arr) in case.steps {
             let a = SVector::<f32, N>::from_column_slice(a_arr);
             let y = SVector::<f32, P>::from_column_slice(y_arr);
             rls.update(&a, &y);

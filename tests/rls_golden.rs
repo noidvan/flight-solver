@@ -1,3 +1,4 @@
+#![allow(clippy::excessive_precision)]
 //! Golden tests: verify standard RLS matches indiflight C reference output.
 //!
 //! Test cases and expected values from `indiflight/src/main/common/rls.c`
