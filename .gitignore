@@ -1,0 +1,11 @@
+/target/
+Cargo.lock
+
+# Benchmark outputs
+comparison/*.csv
+comparison/plots/
+comparison/bench_rls_c
+
+# Editor
+.vscode/
+*.swp

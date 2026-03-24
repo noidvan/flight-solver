@@ -1,0 +1,33 @@
+[package]
+name = "flight-solver"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.79"
+description = "Real-time solvers for flight controllers"
+license = "MIT"
+repository = "https://github.com/noidvan/flight-solver"
+readme = "README.md"
+keywords = ["robotics", "least-squares", "no-std", "solver"]
+categories = ["no-std", "science::robotics", "aerospace"]
+exclude = ["tests/", "benches/", "comparison/", ".github/"]
+
+[dependencies]
+nalgebra = { version = "0.34", default-features = false, features = ["libm"] }
+libm = "0.2"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "rls"
+harness = false
+
+[[bin]]
+name = "bench_rls"
+path = "comparison/bench_rls.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+overflow-checks = false
