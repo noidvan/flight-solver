@@ -159,6 +159,18 @@ where
         self.ws = [0i8; NU];
     }
 
+    /// Overwrite the stored solution `us` without touching the active-set
+    /// warm-start `ws`.
+    ///
+    /// For the INDI-style pattern where the feasible box `[umin, umax]` shifts
+    /// every step (because the linearisation point moves) but the active set
+    /// identified on the previous step is still a good starting guess. Seed
+    /// `us` with the midpoint of the new box, keep `ws` to skip re-identifying
+    /// the active set from scratch, then [`solve`](Self::solve).
+    pub fn set_solution(&mut self, us: &OVector<f32, Const<NU>>) {
+        self.us = us.clone_owned();
+    }
+
     /// Zero the warm-start solution and clear the active set.
     pub fn reset_warmstart(&mut self) {
         self.us = OVector::zeros();
