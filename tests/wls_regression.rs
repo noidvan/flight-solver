@@ -9,7 +9,8 @@ mod common;
 use common::naive::solve_naive;
 use common::{mat, max_abs_diff, vec_from};
 use flight_solver::cls::setup::wls::{setup_a, setup_b};
-use flight_solver::cls::{solve, ExitCode};
+use flight_solver::cls::ExitCode;
+use flight_solver::wls::ControlAllocator;
 use nalgebra::{SMatrix, SVector};
 
 fn has_nan(a: &[f32]) -> bool {
@@ -24,23 +25,27 @@ fn run_case(idx: usize) -> ([f32; 6], [f32; 6], ExitCode, ExitCode) {
 
     let g: SMatrix<f32, 4, 6> = mat(tc.jg);
     let wv: SVector<f32, 4> = vec_from(tc.wv);
-    let mut wu: SVector<f32, 6> = vec_from(tc.wu);
+    let wu: SVector<f32, 6> = vec_from(tc.wu);
     let v: SVector<f32, 4> = vec_from(tc.v);
     let up: SVector<f32, 6> = vec_from(tc.up);
-
-    let (a, gamma) = setup_a::<6, 4, 10>(&g, &wv, &mut wu, 2.0e-9, 4e5);
-    let b = setup_b::<6, 4, 10>(&v, &up, &wv, &wu, gamma);
-
     let lb: SVector<f32, 6> = vec_from(tc.lb);
     let ub: SVector<f32, 6> = vec_from(tc.ub);
+
+    // Naive reference path — still uses the raw building blocks so we can
+    // feed solve_naive the same A/b the encapsulated allocator sees.
+    let mut wu_raw = wu;
+    let (a, gamma) = setup_a::<6, 4, 10>(&g, &wv, &mut wu_raw, 2.0e-9, 4e5);
+    let b = setup_b::<6, 4, 10>(&v, &up, &wv, &wu_raw, gamma);
 
     let mut us_n: SVector<f32, 6> = vec_from(tc.u0);
     let mut ws_n = [0i8; 6];
     let sn = solve_naive::<6, 4, 10>(&a, &b, &lb, &ub, &mut us_n, &mut ws_n, 100);
 
-    let mut us_i: SVector<f32, 6> = vec_from(tc.u0);
-    let mut ws_i = [0i8; 6];
-    let si = solve::<6, 4, 10>(&a, &b, &lb, &ub, &mut us_i, &mut ws_i, 100);
+    // Incremental path — driven through the encapsulated ControlAllocator API.
+    let mut alloc = ControlAllocator::<6, 4, 10>::new(&g, &wv, wu, 2.0e-9, 4e5);
+    alloc.set_warmstart(&vec_from(tc.u0));
+    let si = alloc.solve(&v, &up, &lb, &ub, 100);
+    let us_i = *alloc.solution();
 
     (us_n.data.0[0], us_i.data.0[0], sn.exit_code, si.exit_code)
 }

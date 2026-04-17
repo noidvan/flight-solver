@@ -11,6 +11,7 @@
 //! |--------|-----------|----------|
 //! | [`rls`] | Recursive Least Squares | Online parameter estimation |
 //! | [`cls`] | Constrained Least Squares | Box-constrained allocation |
+//! | [`wls`] | Encapsulated WLS allocator | High-level control allocation API |
 //!
 //! # Example: RLS online parameter estimation
 //!
@@ -26,13 +27,43 @@
 //! let estimate = rls.params(); // 4×3 parameter matrix
 //! ```
 //!
-//! # Example: WLS constrained allocation
+//! # Example: WLS constrained allocation (encapsulated API — recommended)
+//!
+//! [`wls::ControlAllocator`] owns the static problem (effectiveness matrix,
+//! weights, `γ`) and the warm-start solver state. Build once, then call
+//! [`solve`](wls::ControlAllocator::solve) on every control tick.
+//!
+//! ```no_run
+//! use flight_solver::wls::ControlAllocator;
+//! use flight_solver::cls::{ExitCode, Mat, VecN};
+//!
+//! let g: Mat<6, 4> = Mat::zeros();  // effectiveness matrix
+//! let wv = VecN::<6>::from_column_slice(&[10.0, 10.0, 10.0, 1.0, 0.5, 0.5]);
+//! let wu = VecN::<4>::from_column_slice(&[1.0; 4]);
+//!
+//! let mut alloc = ControlAllocator::<4, 6, 10>::new(&g, &wv, wu, 2e-9, 4e5);
+//!
+//! let v = VecN::<6>::zeros();
+//! let ud = VecN::<4>::from_column_slice(&[0.5; 4]);
+//! let umin = VecN::<4>::from_column_slice(&[0.0; 4]);
+//! let umax = VecN::<4>::from_column_slice(&[1.0; 4]);
+//!
+//! let stats = alloc.solve(&v, &ud, &umin, &umax, 100);
+//! assert_eq!(stats.exit_code, ExitCode::Success);
+//! let u = alloc.solution();
+//! ```
+//!
+//! # Example: WLS constrained allocation (raw building blocks)
+//!
+//! For advanced use — custom `A` matrices or non-standard pipeline composition —
+//! the [`cls::setup::wls`] and [`cls`] modules expose the free functions
+//! directly.
 //!
 //! ```no_run
 //! use flight_solver::cls::{solve, ExitCode, Mat, VecN};
 //! use flight_solver::cls::setup::wls::{setup_a, setup_b};
 //!
-//! let g: Mat<6, 4> = Mat::zeros();  // effectiveness matrix
+//! let g: Mat<6, 4> = Mat::zeros();
 //! let wv = VecN::<6>::from_column_slice(&[10.0, 10.0, 10.0, 1.0, 0.5, 0.5]);
 //! let mut wu = VecN::<4>::from_column_slice(&[1.0; 4]);
 //!
@@ -76,3 +107,4 @@
 pub mod cls;
 pub mod givens;
 pub mod rls;
+pub mod wls;

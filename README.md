@@ -32,7 +32,40 @@ let y = nalgebra::SVector::<f32, 3>::new(0.5, -0.3, 0.1);
 rls.update(&a, &y);
 ```
 
-### CLS - constrained allocation
+### WLS control allocation (high-level API)
+
+`flight_solver::wls::ControlAllocator` owns the problem configuration (`A`,
+`γ`, normalized `wu`) and the warm-start solver state across solves. Build
+once, then call `solve()` every control tick to compute the optimal control
+allocation for a given desired pseudo-control and preferred motor command.
+
+```rust
+use flight_solver::wls::ControlAllocator;
+use flight_solver::cls::{ExitCode, Mat, VecN};
+
+let g: Mat<6, 4> = Mat::zeros();
+let wv = VecN::<6>::from_column_slice(&[10.0, 10.0, 10.0, 1.0, 0.5, 0.5]);
+let wu = VecN::<4>::from_column_slice(&[1.0; 4]);
+
+// One-time setup: factor A, compute γ, normalize wu
+let mut alloc = ControlAllocator::<4, 6, 10>::new(&g, &wv, wu, 2e-9, 4e5);
+
+// Per-tick solve — warm-start is persisted automatically across calls
+let v = VecN::<6>::zeros();
+let ud = VecN::<4>::from_column_slice(&[0.5; 4]);
+let umin = VecN::<4>::from_column_slice(&[0.0; 4]);
+let umax = VecN::<4>::from_column_slice(&[1.0; 4]);
+
+let stats = alloc.solve(&v, &ud, &umin, &umax, 100);
+assert_eq!(stats.exit_code, ExitCode::Success);
+let u = alloc.solution(); // optimal motor commands
+```
+
+### CLS - raw building blocks
+
+For advanced use — custom `A` matrices, the unregularised CLS variant, or
+non-standard pipeline composition — the `cls` module exposes the underlying
+free functions directly.
 
 ```rust
 use flight_solver::cls::{solve, ExitCode, Mat, VecN};
