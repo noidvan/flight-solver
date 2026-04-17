@@ -119,6 +119,28 @@ where
         solver::solve::<NU, NV, NC>(&self.a, &b, umin, umax, &mut self.us, &mut self.ws, imax)
     }
 
+    /// Refactor the augmented matrix `A` against a new effectiveness matrix
+    /// while preserving the warm-start (`us`, `ws`).
+    ///
+    /// Use this when the plant has changed between solves — e.g. the motor
+    /// effectiveness matrix depends on current actuator state (filtered RPM)
+    /// and must be rebuilt every control tick — but the per-channel weights
+    /// and regularisation scheme are unchanged. The stored `wv` is reused;
+    /// `wu_norm` is recomputed from a fresh copy of the original `wu` weights
+    /// supplied here, so the caller must pass the pre-normalised weights.
+    pub fn rebuild_a(
+        &mut self,
+        g: &OMatrix<f32, Const<NV>, Const<NU>>,
+        mut wu: OVector<f32, Const<NU>>,
+        theta: f32,
+        cond_bound: f32,
+    ) {
+        let (a, gamma) = setup::setup_a::<NU, NV, NC>(g, &self.wv, &mut wu, theta, cond_bound);
+        self.a = a;
+        self.wu_norm = wu;
+        self.gamma = gamma;
+    }
+
     /// The current actuator solution (also the warm-start for the next solve).
     pub fn solution(&self) -> &OVector<f32, Const<NU>> {
         &self.us
